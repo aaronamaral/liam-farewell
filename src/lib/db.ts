@@ -1,4 +1,4 @@
-import { sql } from "@vercel/postgres";
+import { neon } from "@neondatabase/serverless";
 
 export interface Post {
   id: string;
@@ -8,7 +8,12 @@ export interface Post {
   created_at: string;
 }
 
+function getSQL() {
+  return neon(process.env.DATABASE_URL!);
+}
+
 export async function ensureTable() {
+  const sql = getSQL();
   await sql`
     CREATE TABLE IF NOT EXISTS posts (
       id TEXT PRIMARY KEY,
@@ -22,7 +27,8 @@ export async function ensureTable() {
 
 export async function getAllPosts(): Promise<Post[]> {
   await ensureTable();
-  const { rows } = await sql`
+  const sql = getSQL();
+  const rows = await sql`
     SELECT id, name, message, image_url, created_at
     FROM posts
     ORDER BY created_at DESC
@@ -37,7 +43,8 @@ export async function createPost(post: {
   image_url: string | null;
 }): Promise<Post> {
   await ensureTable();
-  const { rows } = await sql`
+  const sql = getSQL();
+  const rows = await sql`
     INSERT INTO posts (id, name, message, image_url)
     VALUES (${post.id}, ${post.name}, ${post.message}, ${post.image_url})
     RETURNING id, name, message, image_url, created_at
