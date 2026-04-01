@@ -38,6 +38,9 @@ farewell.db
 /public/uploads/*
 !/public/uploads/.gitkeep
 
+# lockfile (let Vercel generate with its own npm version)
+package-lock.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
